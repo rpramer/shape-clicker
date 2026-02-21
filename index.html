@@ -37,6 +37,23 @@
       text-align: center;
       line-height: 1.6;
     }
+
+    #reset-btn {
+      margin-top: 10px;
+      padding: 6px 18px;
+      background-color: #444;
+      color: #aaa;
+      border: 1px solid #555;
+      border-radius: 4px;
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #reset-btn:hover {
+      background-color: #555;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -44,6 +61,7 @@
   <div class="stats">
     <div id="session-counter">Session Clicks: 0</div>
     <div id="total-counter">Total Clicks: 0</div>
+    <button id="reset-btn">Reset</button>
   </div>
 
   <!-- Firebase SDK (loaded from CDN — no install needed) -->
@@ -150,6 +168,16 @@
             console.log('Audio blocked by browser policy. Waiting for user interaction.');
           });
         }
+      }
+    });
+
+    // Reset button — prompts for password, resets session clicks only
+    document.getElementById('reset-btn').addEventListener('click', () => {
+      const password = prompt('Enter password to reset:');
+      if (password === 'mickey') {
+        clickCount = 0;
+        prevShapeIndex = 0;
+        render();
       }
     });
 
