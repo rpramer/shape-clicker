@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shape Clicker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #2b2b2b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .shape {
+      width: 200px;
+      height: 200px;
+      background-color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stats {
+      position: fixed;
+      bottom: 32px;
+      color: #888;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="shape" id="shape"></div>
+  <div class="stats">
+    <div id="session-counter">Session Clicks: 0</div>
+    <div id="total-counter">Total Clicks: 0</div>
+  </div>
+
+  <!-- Firebase SDK (loaded from CDN — no install needed) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <script>
+    // Firebase config — identifies your project (not secret)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbKiVLY0EJQ0_k3PiSxiHcp4k7aUTGOxI",
+      authDomain: "shape-clicker-d9544.firebaseapp.com",
+      databaseURL: "https://shape-clicker-d9544-default-rtdb.firebaseio.com",
+      projectId: "shape-clicker-d9544",
+      storageBucket: "shape-clicker-d9544.firebasestorage.app",
+      messagingSenderId: "636482469499",
+      appId: "1:636482469499:web:dbc25826d5c4784582acde"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const totalClicksRef = db.ref('totalClicks');
+
+    const shape = document.getElementById('shape');
+    const sessionCounter = document.getElementById('session-counter');
+    const totalCounter = document.getElementById('total-counter');
+    const colors = ['white', '#4488ff', '#ff4444'];
+    let clickCount = 0;
+    let prevShapeIndex = 0;
+    let totalClicks = 0;
+
+    function render() {
+      sessionCounter.textContent = 'Session Clicks: ' + clickCount;
+      totalCounter.textContent = 'Total Clicks: ' + totalClicks;
+      const color = colors[clickCount % 3];
+      const shapeIndex = Math.floor(clickCount / 10) % 3;
+
+      // Disable transition when shape type changes (avoids visual glitches)
+      if (shapeIndex !== prevShapeIndex) {
+        shape.style.transition = 'none';
+      } else {
+        shape.style.transition = 'background-color 0.3s ease, border-bottom-color 0.3s ease';
+      }
+      prevShapeIndex = shapeIndex;
+
+      // Reset all shape styles to a clean slate
+      shape.style.width = '200px';
+      shape.style.height = '200px';
+      shape.style.backgroundColor = color;
+      shape.style.borderRadius = '0';
+      shape.style.border = 'none';
+
+      if (shapeIndex === 0) {
+        // Circle
+        shape.style.borderRadius = '50%';
+      } else if (shapeIndex === 1) {
+        // Square — border-radius already 0, nothing extra needed
+      } else {
+        // Triangle — CSS border trick:
+        // Zero width/height, big border-bottom for the visible part,
+        // transparent left/right borders create the angled sides
+        shape.style.width = '0';
+        shape.style.height = '0';
+        shape.style.backgroundColor = 'transparent';
+        shape.style.border = '100px solid transparent';
+        shape.style.borderBottom = '200px solid ' + color;
+      }
+    }
+
+    shape.addEventListener('click', () => {
+      clickCount++;
+      // Use a transaction to safely increment (handles simultaneous clicks)
+      totalClicksRef.transaction(current => (current || 0) + 1);
+      render();
+    });
+
+    // Listen for real-time updates from Firebase
+    // When anyone clicks (you or your wife), this fires on ALL devices
+    totalClicksRef.on('value', snapshot => {
+      totalClicks = snapshot.val() || 0;
+      totalCounter.textContent = 'Total Clicks: ' + totalClicks;
+    });
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
