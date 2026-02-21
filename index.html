@@ -25,7 +25,7 @@
       background-color: white;
       border-radius: 50%;
       cursor: pointer;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
+      transition: background-color 0.3s ease, filter 0.3s ease;
     }
 
     .stats {
@@ -71,6 +71,8 @@
     const sessionCounter = document.getElementById('session-counter');
     const totalCounter = document.getElementById('total-counter');
     const colors = ['white', '#4488ff', '#ff4444'];
+    // Photos to show inside the triangle (one per color position)
+    const photos = ['images/wife.jpg', 'images/family.jpg', 'images/kid.jpg'];
     let clickCount = 0;
     let prevShapeIndex = 0;
     let totalClicks = 0;
@@ -85,7 +87,7 @@
       if (shapeIndex !== prevShapeIndex) {
         shape.style.transition = 'none';
       } else {
-        shape.style.transition = 'background-color 0.3s ease, border-bottom-color 0.3s ease';
+        shape.style.transition = 'background-color 0.3s ease, filter 0.3s ease';
       }
       prevShapeIndex = shapeIndex;
 
@@ -95,6 +97,9 @@
       shape.style.backgroundColor = color;
       shape.style.borderRadius = '0';
       shape.style.border = 'none';
+      shape.style.clipPath = 'none';
+      shape.style.backgroundImage = 'none';
+      shape.style.filter = 'none';
 
       if (shapeIndex === 0) {
         // Circle
@@ -102,14 +107,14 @@
       } else if (shapeIndex === 1) {
         // Square — border-radius already 0, nothing extra needed
       } else {
-        // Triangle — CSS border trick:
-        // Zero width/height, big border-bottom for the visible part,
-        // transparent left/right borders create the angled sides
-        shape.style.width = '0';
-        shape.style.height = '0';
+        // Triangle — clip-path cuts the 200x200 box into a triangle
         shape.style.backgroundColor = 'transparent';
-        shape.style.border = '100px solid transparent';
-        shape.style.borderBottom = '200px solid ' + color;
+        shape.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+        shape.style.backgroundImage = 'url(' + photos[clickCount % 3] + ')';
+        shape.style.backgroundSize = 'cover';
+        shape.style.backgroundPosition = 'center top';
+        // Glow matches the current color in the cycle (white/blue/red)
+        shape.style.filter = 'drop-shadow(0 0 10px ' + colors[clickCount % 3] + ')';
       }
     }
 
