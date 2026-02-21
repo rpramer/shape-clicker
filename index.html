@@ -73,6 +73,8 @@
     const colors = ['white', '#4488ff', '#ff4444'];
     // Photos to show inside the triangle (one per color position)
     const photos = ['images/wife.jpg', 'images/family.jpg', 'images/kid.jpg'];
+    // Preload the audio file
+    const fartSound = new Audio('sounds/fart.mp3');
     let clickCount = 0;
     let prevShapeIndex = 0;
     let totalClicks = 0;
@@ -135,6 +137,20 @@
     totalClicksRef.on('value', snapshot => {
       totalClicks = snapshot.val() || 0;
       totalCounter.textContent = 'Total Clicks: ' + totalClicks;
+
+      // Play fart sound every 7th total click globally
+      if (totalClicks > 0 && totalClicks % 7 === 0) {
+        // Reset audio track to allow rapid-fire overlapping triggers
+        fartSound.currentTime = 0;
+        // Handle the play promise to prevent unhandled rejection console errors
+        // caused by strict browser autoplay policies on page load.
+        var playPromise = fartSound.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(function(error) {
+            console.log('Audio blocked by browser policy. Waiting for user interaction.');
+          });
+        }
+      }
     });
 
     // Initial render
