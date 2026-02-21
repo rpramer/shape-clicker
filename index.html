@@ -99,6 +99,7 @@
       shape.style.border = 'none';
       shape.style.clipPath = 'none';
       shape.style.backgroundImage = 'none';
+      shape.style.backgroundRepeat = '';
       shape.style.filter = 'none';
 
       if (shapeIndex === 0) {
@@ -107,12 +108,16 @@
       } else if (shapeIndex === 1) {
         // Square — border-radius already 0, nothing extra needed
       } else {
-        // Triangle — clip-path cuts the 200x200 box into a triangle
+        // Triangle — clip-path cuts the box into a triangle
+        // Make triangle larger so photos have room to breathe
+        shape.style.width = '300px';
+        shape.style.height = '300px';
         shape.style.backgroundColor = 'transparent';
         shape.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
         shape.style.backgroundImage = 'url(' + photos[clickCount % 3] + ')';
-        shape.style.backgroundSize = 'cover';
-        shape.style.backgroundPosition = 'center top';
+        shape.style.backgroundSize = '45%';
+        shape.style.backgroundPosition = 'center 55%';
+        shape.style.backgroundRepeat = 'no-repeat';
         // Glow matches the current color in the cycle (white/blue/red)
         shape.style.filter = 'drop-shadow(0 0 10px ' + colors[clickCount % 3] + ')';
       }
